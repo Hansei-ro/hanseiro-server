@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '6.22.0'
+    id 'org.sonarqube' version '5.1.0.4882'
 }
 
 group = 'org.hanseiro'
@@ -12,6 +13,14 @@ description = 'server'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.projectKey', 'Hansei-ro_hanseiro-server'
+        property 'sonar.organization', 'hansei-ro'
+        property 'sonar.host.url', 'https://sonarcloud.io'
     }
 }
 
