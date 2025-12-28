@@ -8,3 +8,18 @@ spring:
   h2:
     console:
       enabled: true
+
+oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}
+    scope: ${GOOGLE_SCOPE:openid email profile}
+
+  refresh:
+    secret: ${REFRESH_HASH_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expire-seconds: ${JWT_ACCESS_EXPIRE_SECONDS:1800}
+  refresh-token-expire-seconds: ${JWT_REFRESH_EXPIRE_SECONDS:1209600}
