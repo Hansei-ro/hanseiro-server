@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
-public class GoogleOAuthService {
+public class RestClientGoogleOAuthClient implements GoogleOAuthClient{
 
     private final RestClient restClient;
     private final GoogleOAuthProperties props;
 
-    public GoogleOAuthService(RestClient.Builder builder, GoogleOAuthProperties props) {
+    public RestClientGoogleOAuthClient(RestClient.Builder builder, GoogleOAuthProperties props) {
         this.restClient = builder.build();
         this.props = props;
     }

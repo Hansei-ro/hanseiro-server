@@ -10,12 +10,7 @@ import java.time.Instant;
 public class RefreshTokenEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private Long userId;
-
-    @Column(nullable = false, length = 128)
-    private String tokenHash;
 
     @Column(nullable = false)
     private Instant expiresAt;
@@ -27,13 +22,11 @@ public class RefreshTokenEntity {
 
     public RefreshTokenEntity(Long userId, String tokenHash, Instant expiresAt) {
         this.userId = userId;
-        this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
         this.revoked = false;
     }
 
     public Long getUserId() { return userId; }
-    public String getTokenHash() { return tokenHash; }
     public Instant getExpiresAt() { return expiresAt; }
     public boolean isRevoked() { return revoked; }
     public void revoke() { this.revoked = true; }

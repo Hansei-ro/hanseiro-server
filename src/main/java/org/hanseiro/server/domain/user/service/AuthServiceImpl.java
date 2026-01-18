@@ -4,7 +4,7 @@ import org.hanseiro.server.domain.user.dto.GoogleLoginRequest;
 import org.hanseiro.server.domain.user.dto.TokenResponse;
 import org.hanseiro.server.domain.user.model.UserEntity;
 import org.hanseiro.server.domain.user.repository.UserRepository;
-import org.hanseiro.server.domain.user.service.google.GoogleOAuthService;
+import org.hanseiro.server.domain.user.service.google.RestClientGoogleOAuthClient;
 import org.hanseiro.server.domain.user.service.google.dto.GoogleTokenResponse;
 import org.hanseiro.server.domain.user.service.google.dto.GoogleUserInfo;
 import org.hanseiro.server.global.security.JwtProvider;
@@ -16,15 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
     public static final String REFRESH_HEADER = "X-Refresh-Token";
 
-    private final GoogleOAuthService googleService;
+    private final RestClientGoogleOAuthClient googleService;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenServiceImpl refreshTokenService;
 
-    public AuthServiceImpl(GoogleOAuthService googleService,
+    public AuthServiceImpl(RestClientGoogleOAuthClient googleService,
                            UserRepository userRepository,
                            JwtProvider jwtProvider,
-                           RefreshTokenService refreshTokenService) {
+                           RefreshTokenServiceImpl refreshTokenService) {
         this.googleService = googleService;
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;

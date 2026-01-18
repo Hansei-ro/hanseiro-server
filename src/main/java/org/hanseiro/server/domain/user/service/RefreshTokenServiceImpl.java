@@ -10,16 +10,16 @@ import java.security.MessageDigest;
 import java.time.Instant;
 
 @Service
-public class RefreshTokenService {
+public class RefreshTokenServiceImpl {
     private final RefreshTokenRepository repo;
     private final JwtProvider jwtProvider;
 
-    public RefreshTokenService(RefreshTokenRepository repo, JwtProvider jwtProvider) {
+    public RefreshTokenServiceImpl(RefreshTokenRepository repo, JwtProvider jwtProvider) {
         this.repo = repo;
         this.jwtProvider = jwtProvider;
     }
 
-    // 저장: 해시만 저장
+    // 해시만 저장
     public void store(String refreshToken) {
         Long userId = jwtProvider.getUserId(refreshToken);
         Instant exp = jwtProvider.parse(refreshToken).getBody().getExpiration().toInstant();
