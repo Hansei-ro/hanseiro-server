@@ -1,15 +1,16 @@
-package org.hanseiro.server.domain.user.security;
+package org.hanseiro.server.global.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.hanseiro.server.domain.user.service.jwt.JwtTokenProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,7 +20,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // 로그인/공개 API는 JWT 필터 제외
+        return pathMatcher.match("/api/v1/auth/**", path)
+                || pathMatcher.match("/actuator/**", path)
+                || "OPTIONS".equalsIgnoreCase(request.getMethod());
+    }
 
     @Override
     protected void doFilterInternal(
@@ -32,26 +43,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                jwtTokenProvider.validateAccessToken(token);
-                Long userId = jwtTokenProvider.getUserIdFromAccessToken(token);
+                jwtProvider.getType(token);
+                Long userId = jwtProvider.getUserId(token);
 
-                // 권한 모델이 없으면 ROLE_USER
                 var authentication = new UsernamePasswordAuthenticationToken(
-                        userId, // principal
+                        userId,
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            } catch (SecurityException ex) {
-                // 토큰이 있긴 한데 유효하지 않으면 401
+            } catch (JwtException | IllegalArgumentException | SecurityException ex) {
                 SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("""
-                        {"code":"UNAUTHORIZED","message":"유효하지 않은 access token 입니다."}
-                        """);
+                writeUnauthorized(response, "유효하지 않은 access token 입니다.");
                 return;
             }
         }
@@ -68,5 +73,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return token.isEmpty() ? null : token;
         }
         return null;
+    }
+
+    private void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("""
+                {"code":"UNAUTHORIZED","message":"%s"}
+                """.formatted(message));
     }
 }
