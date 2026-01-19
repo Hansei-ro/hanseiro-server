@@ -8,3 +8,42 @@ spring:
   h2:
     console:
       enabled: true
+
+oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}
+    scope: ${GOOGLE_SCOPE:openid email profile}
+    token-uri: ${TOKEN_URL:https://oauth2.googleapis.com/token}
+    userinfo-uri: ${USERINFO_URL:https://openidconnect.googleapis.com/v1/userinfo}
+  refresh:
+    secret: ${REFRESH_HASH_SECRET}
+
+jwt:
+  issuer: ${JWT_ISSUER}
+  secret: ${JWT_SECRET}
+  access-exp-seconds: ${JWT_ACCESS_EXPIRE_SECONDS:1800}
+  refresh-exp-seconds: ${JWT_REFRESH_EXPIRE_SECONDS:1209600}
+
+app:
+  frontend:
+    redirect-uri: ${FRONTEND_REDIRECT_URI}
+
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-exception: true
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: '%h %l %u %t "%r" %s %b'
+
+logging:
+  level:
+    org.springframework.web: debug
+    org.springframework.http.converter: debug
+    org.springframework.validation: debug
+    org.springframework.security: debug
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
