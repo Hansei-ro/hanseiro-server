@@ -1,6 +1,6 @@
 package org.hanseiro.server.domain.user.repository;
 
-import org.hanseiro.server.domain.user.model.entity.UserEntity;
+import org.hanseiro.server.domain.user.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
