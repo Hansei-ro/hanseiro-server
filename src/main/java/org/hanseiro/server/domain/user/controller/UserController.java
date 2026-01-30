@@ -1,38 +1,36 @@
 package org.hanseiro.server.domain.user.controller;
 
 import jakarta.validation.Valid;
-import org.hanseiro.server.domain.user.dto.GoogleLoginRequest;
-import org.hanseiro.server.domain.user.dto.TokenResponse;
+import lombok.RequiredArgsConstructor;
+import org.hanseiro.server.domain.user.service.dto.UserResponse;
+import org.hanseiro.server.domain.user.service.google.dto.GoogleLoginRequest;
 import org.hanseiro.server.domain.user.service.AuthService;
-import org.hanseiro.server.domain.user.service.AuthServiceImpl;
+import org.hanseiro.server.domain.user.service.TokenIssuer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class UserController {
 
     private final AuthService authService;
-    private static final String REFRESH_HEADER = AuthServiceImpl.REFRESH_HEADER;
-
-    public UserController(AuthService authService) {
-        this.authService = authService;
-    }
+    private static final String REFRESH_HEADER = TokenIssuer.REFRESH_HEADER;
 
     @PostMapping("/google")
-    public ResponseEntity<TokenResponse> google(@RequestBody @Valid GoogleLoginRequest req) {
+    public ResponseEntity<UserResponse> googleLogin(@RequestBody @Valid GoogleLoginRequest req) {
         // System.out.println("HIT /auth/google : " + req);
         HttpHeaders headers = new HttpHeaders();
-        TokenResponse body = authService.loginWithGoogle(req, headers);
-        return ResponseEntity.ok().headers(headers).body(body);
+        UserResponse userResponse = authService.loginWithGoogle(req, headers);
+        return ResponseEntity.ok().headers(headers).body(userResponse);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@RequestHeader(REFRESH_HEADER) String refreshToken) {
+    public ResponseEntity<Void> refresh(@RequestHeader(REFRESH_HEADER) String refreshToken) {
         HttpHeaders headers = new HttpHeaders();
-        TokenResponse body = authService.refresh(refreshToken, headers);
-        return ResponseEntity.ok().headers(headers).body(body);
+        authService.refresh(refreshToken, headers);
+        return ResponseEntity.ok().headers(headers).build();
     }
 
     @PostMapping("/logout")

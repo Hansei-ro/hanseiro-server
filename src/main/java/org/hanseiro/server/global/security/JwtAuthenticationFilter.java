@@ -43,7 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                jwtProvider.getType(token);
+                String tokenType = jwtProvider.getType(token);
+
+                if (!"access".equals(tokenType)) {
+                    SecurityContextHolder.clearContext();
+                    writeUnauthorized(response, "Access token이 필요합니다.");
+                    return;
+                }
+
                 Long userId = jwtProvider.getUserId(token);
 
                 var authentication = new UsernamePasswordAuthenticationToken(

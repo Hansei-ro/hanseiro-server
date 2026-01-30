@@ -1,6 +1,7 @@
 package org.hanseiro.server.domain.user.service.google;
 
 
+import org.hanseiro.server.domain.user.exception.AuthDomainException;
 import org.hanseiro.server.domain.user.service.google.dto.GoogleTokenResponse;
 import org.hanseiro.server.domain.user.service.google.dto.GoogleUserInfo;
 import org.springframework.http.MediaType;
@@ -19,25 +20,32 @@ public class RestClientGoogleOAuthClient implements GoogleOAuthClient{
     }
 
     public GoogleTokenResponse exchangeCodeForToken(String code, String redirectUri) {
-        // token endpoint는 x-www-form-urlencoded 권장
-        return restClient.post()
-                .uri(props.getTokenUri())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body("code=" + encode(code)
-                        + "&client_id=" + encode(props.getClientId())
-                        + "&client_secret=" + encode(props.getClientSecret())
-                        + "&redirect_uri=" + encode(redirectUri)
-                        + "&grant_type=authorization_code")
-                .retrieve()
-                .body(GoogleTokenResponse.class);
+        try {
+            return restClient.post()
+                    .uri(props.getTokenUri())
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body("code=" + encode(code)
+                            + "&client_id=" + encode(props.getClientId())
+                            + "&client_secret=" + encode(props.getClientSecret())
+                            + "&redirect_uri=" + encode(redirectUri)
+                            + "&grant_type=authorization_code")
+                    .retrieve()
+                    .body(GoogleTokenResponse.class);
+        } catch (Exception e) {
+            throw AuthDomainException.googleTokenExchangeFailed();
+        }
     }
 
     public GoogleUserInfo fetchUserInfo(String googleAccessToken) {
-        return restClient.get()
-                .uri(props.getUserinfoUri())
-                .header("Authorization", "Bearer " + googleAccessToken)
-                .retrieve()
-                .body(GoogleUserInfo.class);
+        try {
+            return restClient.get()
+                    .uri(props.getUserinfoUri())
+                    .header("Authorization", "Bearer " + googleAccessToken)
+                    .retrieve()
+                    .body(GoogleUserInfo.class);
+        } catch (Exception e) {
+            throw AuthDomainException.googleUserinfoFailed();
+        }
     }
 
     private String encode(String s) {
