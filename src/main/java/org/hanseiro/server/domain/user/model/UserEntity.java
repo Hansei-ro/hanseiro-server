@@ -1,11 +1,16 @@
 package org.hanseiro.server.domain.user.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "uk_users_email", columnNames = "email")
 })
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserEntity {
 
     @Id
@@ -18,18 +23,15 @@ public class UserEntity {
     @Column(length = 100)
     private String name;
 
-    protected UserEntity() {}
+    @Column(length = 100)
+    private String department;
 
-    private UserEntity(String email, String name) {
-        this.email = email;
-        this.name = name;
+    public static UserEntity create(String email) {
+        return UserEntity.builder()
+                .email(email == null ? null : email.trim().toLowerCase())
+                .build();
     }
 
-    public static UserEntity create(String email, String name) {
-        return new UserEntity(email, name);
-    }
-
-    public Long getId() { return id; }
-    public String getEmail() { return email; }
-    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public void setDepartment(String department) { this.department = department; }
 }
